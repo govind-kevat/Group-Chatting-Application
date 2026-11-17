@@ -14,14 +14,17 @@ public class UserThree implements ActionListener, Runnable {
     JTextField text;
     JPanel a1;
     JScrollPane scroll;
+
     static Box vertical = Box.createVerticalBox();
     static JFrame f = new JFrame();
 
     BufferedWriter writer;
     BufferedReader reader;
+
     String name = "Mukesh Patidar";
 
     UserThree() {
+
         f.setLayout(null);
 
         a1 = new JPanel();
@@ -31,7 +34,10 @@ public class UserThree implements ActionListener, Runnable {
         scroll = new JScrollPane(a1);
         scroll.setBounds(5, 75, 440, 520);
         scroll.setBorder(null);
-        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setHorizontalScrollBarPolicy(
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
+        );
+
         f.add(scroll);
 
         text = new JTextField();
@@ -43,26 +49,29 @@ public class UserThree implements ActionListener, Runnable {
         send.setBounds(320, 605, 123, 40);
         send.setBackground(new Color(7, 94, 84));
         send.setForeground(Color.WHITE);
+        send.setFont(new Font("SAN_SERIF", Font.PLAIN, 16));
+
         send.addActionListener(this);
         text.addActionListener(this);
-        send.setFont(new Font("SAN_SERIF", Font.PLAIN, 16));
+
         f.add(send);
 
         JPanel p1 = new JPanel();
         p1.setBackground(new Color(7, 94, 84));
         p1.setBounds(0, 0, 450, 70);
         p1.setLayout(null);
+
         f.add(p1);
 
         JLabel back = new JLabel(loadIcon("3.png", 25, 25));
         back.setBounds(5, 20, 25, 25);
         p1.add(back);
+
         back.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent ae) {
                 System.exit(0);
             }
         });
-
 
         JLabel profile = new JLabel(loadIcon("1.jpeg", 50, 50));
         profile.setBounds(40, 10, 50, 50);
@@ -81,15 +90,15 @@ public class UserThree implements ActionListener, Runnable {
         p1.add(menu);
 
         JLabel groupName = new JLabel("Minor Project");
-        groupName.setBounds(110, 15, 100, 18);
+        groupName.setBounds(110, 15, 150, 18);
         groupName.setForeground(Color.WHITE);
         groupName.setFont(new Font("SAN_SERIF", Font.BOLD, 18));
         p1.add(groupName);
 
-        JLabel status = new JLabel("Govind,jayant,mukesh");
-        status.setBounds(110, 35, 160, 18);
+        JLabel status = new JLabel("Govind, Jayant, Mukesh");
+        status.setBounds(110, 35, 180, 18);
         status.setForeground(Color.WHITE);
-        status.setFont(new Font("SAN_SERIF", Font.BOLD, 14));
+        status.setFont(new Font("SAN_SERIF", Font.PLAIN, 14));
         p1.add(status);
 
         f.setSize(465, 700);
@@ -100,34 +109,64 @@ public class UserThree implements ActionListener, Runnable {
 
         try {
             Socket socket = new Socket("localhost", 2003);
-            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            writer = new BufferedWriter(
+                    new OutputStreamWriter(socket.getOutputStream())
+            );
+
+            reader = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream())
+            );
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     private ImageIcon loadIcon(String file, int w, int h) {
-        ImageIcon icon = new ImageIcon(ClassLoader.getSystemResource("icons/" + file));
-        Image scaled = icon.getImage().getScaledInstance(w, h, Image.SCALE_DEFAULT);
+
+        URL resource = ClassLoader.getSystemResource("icons/" + file);
+
+        if (resource == null) {
+            System.out.println("Icon not found: " + file);
+            return new ImageIcon();
+        }
+
+        ImageIcon icon = new ImageIcon(resource);
+
+        Image scaled = icon.getImage().getScaledInstance(
+                w, h, Image.SCALE_SMOOTH
+        );
+
         return new ImageIcon(scaled);
     }
+
     private void scrollToBottom() {
+
         SwingUtilities.invokeLater(() -> {
             JScrollBar bar = scroll.getVerticalScrollBar();
             bar.setValue(bar.getMaximum());
         });
     }
 
+    @Override
     public void actionPerformed(ActionEvent ae) {
+
         try {
-            String msg = text.getText();
-            if (msg.isEmpty()) return;
+
+            String msg = text.getText().trim();
+
+            if (msg.isEmpty()) {
+                return;
+            }
 
             String out = name + ": " + msg;
 
             JPanel p2 = formatLabel(out);
+
             JPanel right = new JPanel(new BorderLayout());
             right.add(p2, BorderLayout.LINE_END);
+
             vertical.add(right);
             vertical.add(Box.createVerticalStrut(15));
 
@@ -136,55 +175,85 @@ public class UserThree implements ActionListener, Runnable {
             writer.flush();
 
             text.setText("");
+
             f.repaint();
-            f.invalidate();
-            f.validate();
+            f.revalidate();
+
+            scrollToBottom();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public static JPanel formatLabel(String out) {
+
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        JLabel output = new JLabel("<html><p style=\"width: 150px\">" + out + "</p></html>");
+        JLabel output = new JLabel(
+                "<html><p style=\"width: 150px\">" +
+                        out +
+                        "</p></html>"
+        );
+
         output.setFont(new Font("Tahoma", Font.PLAIN, 16));
         output.setBackground(new Color(37, 211, 102));
         output.setOpaque(true);
-        output.setBorder(new EmptyBorder(15, 15, 15, 50));
+
+        output.setBorder(
+                new EmptyBorder(15, 15, 15, 50)
+        );
+
         panel.add(output);
 
         Calendar cal = Calendar.getInstance();
+
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-        JLabel time = new JLabel();
-        time.setText(sdf.format(cal.getTime()));
+
+        JLabel time = new JLabel(sdf.format(cal.getTime()));
+
         panel.add(time);
 
         return panel;
     }
 
+    @Override
     public void run() {
+
         try {
+
             String msg;
+
             while ((msg = reader.readLine()) != null) {
-                if (msg.startsWith(name + ":")) continue;
+
+                if (msg.startsWith(name + ":")) {
+                    continue;
+                }
 
                 JPanel panel = formatLabel(msg);
+
                 JPanel left = new JPanel(new BorderLayout());
                 left.add(panel, BorderLayout.LINE_START);
+
                 vertical.add(left);
                 vertical.add(Box.createVerticalStrut(15));
 
-                f.validate();
+                f.revalidate();
+                f.repaint();
+
+                scrollToBottom();
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public static void main(String[] args) {
+
         UserThree three = new UserThree();
+
         Thread t1 = new Thread(three);
         t1.start();
     }

@@ -31,7 +31,8 @@ public class UserTwo implements ActionListener, Runnable {
         scroll = new JScrollPane(a1);
         scroll.setBounds(5, 75, 440, 520);
         scroll.setBorder(null);
-        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setHorizontalScrollBarPolicy(
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         f.add(scroll);
 
         text = new JTextField();
@@ -57,12 +58,12 @@ public class UserTwo implements ActionListener, Runnable {
         JLabel back = new JLabel(loadIcon("3.png", 25, 25));
         back.setBounds(5, 20, 25, 25);
         p1.add(back);
+
         back.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent ae) {
                 System.exit(0);
             }
         });
-
 
         JLabel profile = new JLabel(loadIcon("1.jpeg", 50, 50));
         profile.setBounds(40, 10, 50, 50);
@@ -100,17 +101,29 @@ public class UserTwo implements ActionListener, Runnable {
 
         try {
             Socket socket = new Socket("localhost", 2003);
-            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            writer = new BufferedWriter(
+                    new OutputStreamWriter(socket.getOutputStream()));
+
+            reader = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream()));
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     private ImageIcon loadIcon(String file, int w, int h) {
-        ImageIcon icon = new ImageIcon(ClassLoader.getSystemResource("icons/" + file));
-        Image scaled = icon.getImage().getScaledInstance(w, h, Image.SCALE_DEFAULT);
+
+        ImageIcon icon = new ImageIcon(
+                ClassLoader.getSystemResource("icons/" + file));
+
+        Image scaled = icon.getImage().getScaledInstance(
+                w, h, Image.SCALE_DEFAULT);
+
         return new ImageIcon(scaled);
     }
+
     private void scrollToBottom() {
         SwingUtilities.invokeLater(() -> {
             JScrollBar bar = scroll.getVerticalScrollBar();
@@ -119,15 +132,19 @@ public class UserTwo implements ActionListener, Runnable {
     }
 
     public void actionPerformed(ActionEvent ae) {
+
         try {
             String msg = text.getText();
+
             if (msg.isEmpty()) return;
 
             String out = name + ": " + msg;
 
             JPanel p2 = formatLabel(out);
+
             JPanel right = new JPanel(new BorderLayout());
             right.add(p2, BorderLayout.LINE_END);
+
             vertical.add(right);
             vertical.add(Box.createVerticalStrut(15));
 
@@ -136,55 +153,72 @@ public class UserTwo implements ActionListener, Runnable {
             writer.flush();
 
             text.setText("");
+
             f.repaint();
             f.invalidate();
             f.validate();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public static JPanel formatLabel(String out) {
+
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        JLabel output = new JLabel("<html><p style=\"width: 150px\">" + out + "</p></html>");
+        JLabel output = new JLabel(
+                "<html><p style=\"width: 150px\">" + out + "</p></html>");
+
         output.setFont(new Font("Tahoma", Font.PLAIN, 16));
         output.setBackground(new Color(37, 211, 102));
         output.setOpaque(true);
         output.setBorder(new EmptyBorder(15, 15, 15, 50));
+
         panel.add(output);
 
         Calendar cal = Calendar.getInstance();
+
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+
         JLabel time = new JLabel();
         time.setText(sdf.format(cal.getTime()));
+
         panel.add(time);
 
         return panel;
     }
 
     public void run() {
+
         try {
             String msg;
+
             while ((msg = reader.readLine()) != null) {
+
                 if (msg.startsWith(name + ":")) continue;
 
                 JPanel panel = formatLabel(msg);
+
                 JPanel left = new JPanel(new BorderLayout());
                 left.add(panel, BorderLayout.LINE_START);
+
                 vertical.add(left);
                 vertical.add(Box.createVerticalStrut(15));
 
                 f.validate();
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public static void main(String[] args) {
+
         UserTwo two = new UserTwo();
+
         Thread t1 = new Thread(two);
         t1.start();
     }
